@@ -93,11 +93,13 @@ def depthFirstSearch(problem: SearchProblem):
     frontier = util.Stack()
 
 
+
     #frontier -> stack of tuples. first element is the state(also a tuple), and second is the required action(abstract) needed to reach said state
     #path -> list of actions made to reach current state -> list of actions necessary to reach goal state from starting state
 
 
-    node = (problem.getStartState(),0)
+    node = (problem.getStartState(),'Stop')
+
     expanded.add(node[0])
     successors = problem.getSuccessors(node[0])
 
@@ -106,22 +108,36 @@ def depthFirstSearch(problem: SearchProblem):
 
 
     while not frontier.isEmpty():
-
         node = frontier.pop()
+
+        if (problem.isGoalState(node[0])):
+            path.append(node[1])
+            return path
+        
+        from helpfulFunctions import helpfulFunctions
+
         if (node not in expanded):
             expanded.add(node[0])
             path.append(node[1])
 
             successors = problem.getSuccessors(node[0])
 
-            #list is definitely not empty, contains at least the parent node
-            for s in successors: 
+            explored = True
+            for s in successors:
                 if (s[0] not in expanded): #node is unsearched
+                    explored = False
                     frontier.push(s[0:2])
 
-        if (problem.isGoalState(node)):
-            path.append(node[1])
-            return path
+            print("node is ", node)
+            while helpfulFunctions.explored(successors,expanded):           
+                last_step = path.pop()
+                node = helpfulFunctions.undo(last_step,node)
+                successors = problem.getSuccessors(node[0])
+        else:
+            while node[0] in expanded:
+                last_step = path.pop()
+                node = helpfulFunctions.undo(last_step,node)
+
             
     return path
 
