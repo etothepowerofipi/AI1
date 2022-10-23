@@ -117,7 +117,6 @@ def depthFirstSearch(problem: SearchProblem):
             actions.append(node[1])
             return actions
         
-        from helpfulFunctions import helpfulFunctions
 
         if (node[0] not in expanded):
             expanded.add(node[0])
@@ -130,21 +129,21 @@ def depthFirstSearch(problem: SearchProblem):
                 if (s[0] not in expanded): #node is unsearched
                     frontier.push(s[0:2])
 
-            #Since this is a DFS algorithm, if a successor has been expanded, then all their
+            from helpfulFunctions import helpfulFunctions
+
+            #If we reach a state all of whose successors have already been expanded (eg (5,4) in the tinyMaze problem), continuing would result in a loop.
+            #Therefore, we backtrack until we reach a state that has unexplored successors
             while helpfulFunctions.explored(successors,expanded):           
                 actions.pop()
                 path.pop()
                 node = (path[-1],node[1])
-                #node = helpfulFunctions.undo(last_step,node)
                 successors = problem.getSuccessors(node[0])
         
-            
         else:
             while node[0] in expanded:
                 actions.pop()
                 path.pop()
                 node = (path[-1],node[1])
-                #node = helpfulFunctions.undo(last_step,node)
 
             
     return actions
