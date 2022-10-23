@@ -89,18 +89,20 @@ def depthFirstSearch(problem: SearchProblem):
     """
     "*** YOUR CODE HERE ***"
     expanded = set()
-    path = []
+    actions = []
+    path = [] #list of states required to reach the goal state, in order
     frontier = util.Stack()
 
 
 
     #frontier -> stack of tuples. first element is the state(also a tuple), and second is the required action(abstract) needed to reach said state
-    #path -> list of actions made to reach current state -> list of actions necessary to reach goal state from starting state
+    #actions -> list of actions made to reach current state -> list of actions necessary to reach goal state from starting state
 
 
     node = (problem.getStartState(),'Stop')
 
     expanded.add(node[0])
+    path.append(node[0])
     successors = problem.getSuccessors(node[0])
 
     for s in successors:
@@ -109,37 +111,43 @@ def depthFirstSearch(problem: SearchProblem):
 
     while not frontier.isEmpty():
         node = frontier.pop()
+        path.append(node[0])
 
         if (problem.isGoalState(node[0])):
-            path.append(node[1])
-            return path
+            actions.append(node[1])
+            return actions
         
         from helpfulFunctions import helpfulFunctions
 
-        if (node not in expanded):
+        if (node[0] not in expanded):
             expanded.add(node[0])
-            path.append(node[1])
+            actions.append(node[1])
 
             successors = problem.getSuccessors(node[0])
 
-            explored = True
+            #Used to save time and mainly space by preventing already expanded nodes to be added to the frontier
             for s in successors:
                 if (s[0] not in expanded): #node is unsearched
-                    explored = False
                     frontier.push(s[0:2])
 
-            print("node is ", node)
+            #Since this is a DFS algorithm, if a successor has been expanded, then all their
             while helpfulFunctions.explored(successors,expanded):           
-                last_step = path.pop()
-                node = helpfulFunctions.undo(last_step,node)
+                actions.pop()
+                path.pop()
+                node = (path[-1],node[1])
+                #node = helpfulFunctions.undo(last_step,node)
                 successors = problem.getSuccessors(node[0])
+        
+            
         else:
             while node[0] in expanded:
-                last_step = path.pop()
-                node = helpfulFunctions.undo(last_step,node)
+                actions.pop()
+                path.pop()
+                node = (path[-1],node[1])
+                #node = helpfulFunctions.undo(last_step,node)
 
             
-    return path
+    return actions
 
     util.raiseNotDefined()
 
