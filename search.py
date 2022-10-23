@@ -88,16 +88,18 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+
+    #set of states already checked as not goal states
     expanded = set()
+
+    #list of actions made to reach current state -> list of actions necessary to reach goal state from starting state
     actions = []
-    path = [] #list of states required to reach the goal state, in order
+    
+    #list of states required to reach the goal state, in order. Useful for backtracking
+    path = [] 
+
+    #stack of tuples. first element is the state(also a tuple), and second is the required action(string) needed to reach said state
     frontier = util.Stack()
-
-
-
-    #frontier -> stack of tuples. first element is the state(also a tuple), and second is the required action(abstract) needed to reach said state
-    #actions -> list of actions made to reach current state -> list of actions necessary to reach goal state from starting state
-
 
     node = (problem.getStartState(),'Stop')
 
@@ -113,16 +115,16 @@ def depthFirstSearch(problem: SearchProblem):
         node = frontier.pop()
         path.append(node[0])
 
+        ###Εδώ δεν ξαναελέγχω αν το Α είναι goalState, γιατί δεν έχει μπει δεύτερη φορά στο frontier, άρα node = frontier.pop() <> 'A' πάντα
         if (problem.isGoalState(node[0])):
             actions.append(node[1])
             return actions
         
 
         if (node[0] not in expanded):
+            successors = problem.getSuccessors(node[0])
             expanded.add(node[0])
             actions.append(node[1])
-
-            successors = problem.getSuccessors(node[0])
 
             #Used to save time and mainly space by preventing already expanded nodes to be added to the frontier
             for s in successors:
@@ -132,11 +134,12 @@ def depthFirstSearch(problem: SearchProblem):
             from helpfulFunctions import helpfulFunctions
 
             #If we reach a state all of whose successors have already been expanded (eg (5,4) in the tinyMaze problem), continuing would result in a loop.
-            #Therefore, we backtrack until we reach a state that has unexplored successors
+            #Therefore, we backtrack until we reach a state that has non-expanded successors
             while helpfulFunctions.explored(successors,expanded):           
                 actions.pop()
                 path.pop()
                 node = (path[-1],node[1])
+                ###Εδώ είναι το πρόβλημα, ότι ξαναπαίρνω τους successors του 'A'
                 successors = problem.getSuccessors(node[0])
         
         else:
