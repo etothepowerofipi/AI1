@@ -92,61 +92,109 @@ def depthFirstSearch(problem: SearchProblem):
     #set of states already checked as not goal states
     expanded = set()
 
-    #list of actions made to reach current state -> list of actions necessary to reach goal state from starting state
+    #list of actions made to reach current state ----(becomes)------> list of actions necessary to reach goal state from starting state
     actions = []
     
     #list of states required to reach the goal state, in order. Useful for backtracking
     path = [] 
 
-    #stack of tuples. first element is the state(also a tuple), and second is the required action(string) needed to reach said state
+    #stack of nodes. 
     frontier = util.Stack()
 
+    #set of states that have been added to the frontier at some point. Prevents multiple additions of the same state
+    visited = set()
+
+    #stack of states that added more than one new successors to the frontier. In case of a dead end, we backtrack until reaching the last state that did so
+    expandable = util.Stack()
+
+    #a tuple.first element is the state(also a tuple), and second is the required action(string) needed to reach said state
     node = (problem.getStartState(),'Stop')
 
     expanded.add(node[0])
+    expandable.push(node[0])
+    visited.add(node[0])
     path.append(node[0])
     successors = problem.getSuccessors(node[0])
 
     for s in successors:
         frontier.push(s)
+        visited.add(s)
 
 
     while not frontier.isEmpty():
         node = frontier.pop()
         path.append(node[0])
+        actions.append(node[1])
 
-        ###Εδώ δεν ξαναελέγχω αν το Α είναι goalState, γιατί δεν έχει μπει δεύτερη φορά στο frontier, άρα node = frontier.pop() <> 'A' πάντα
         if (problem.isGoalState(node[0])):
-            actions.append(node[1])
+            print("path =",path)
+            print("actions =",actions)
             return actions
         
 
         if (node[0] not in expanded):
             successors = problem.getSuccessors(node[0])
             expanded.add(node[0])
-            actions.append(node[1])
 
             #Used to save time and mainly space by preventing already expanded nodes to be added to the frontier
+            added = 0
             for s in successors:
                 if (s[0] not in expanded): #node is unsearched
                     frontier.push(s[0:2])
+                    added += 1
+            if added>1:
+                expandable.push(node[0])
+            elif added == 0:
+                last = expandable.pop()
+                while last != node[0]:
+                    path.pop()
+                    actions.pop()
+                    node = (path[-1],node[1])
 
-            from helpfulFunctions import helpfulFunctions
+            # from helpfulFunctions import helpfulFunctions
 
-            #If we reach a state all of whose successors have already been expanded (eg (5,4) in the tinyMaze problem), continuing would result in a loop.
-            #Therefore, we backtrack until we reach a state that has non-expanded successors
-            while helpfulFunctions.explored(successors,expanded):           
-                actions.pop()
-                path.pop()
-                node = (path[-1],node[1])
-                ###Εδώ είναι το πρόβλημα, ότι ξαναπαίρνω τους successors του 'A'
-                successors = problem.getSuccessors(node[0])
+            # #If we reach a state all of whose successors have already been expanded (eg (5,4) in the tinyMaze problem), continuing would result in a loop.
+            # #Therefore, we backtrack until we reach a state that has non-expanded successors
+            # # while helpfulFunctions.explored(successors,visited):           
+            # #     actions.pop()
+            # #     path.pop()
+            # #     node = (path[-1],node[1])
+            # #     ###Εδώ είναι το πρόβλημα, ότι ξαναπαίρνω τους successors του 'A'
+            # #     ###λύση: χρήση dictionary node->true/false με όνομα "visited" και ανάθεση visited[s] = true στη γραμμή 134. Ο έλεγχος στην 132 θα γίνει "not visited s[0]"
+            # #     ###λύση: χρήση set visited
+            # #     successors = problem.getSuccessors(node[0])
+            # while (helpfulFunctions.explored(successors,expanded)):
+            #     actions.pop()
+            #     path.pop()
+            #     node = (path[-1],node[1])
+            #     successors = problem.getSuccessors(node[0])
         
         else:
-            while node[0] in expanded:
-                actions.pop()
+            last = expandable.pop()
+            while last != node[0]:
                 path.pop()
-                node = (path[-1],node[1])
+                actions.pop()
+                node = (path[-1],node[1])    
+        #     print(node[0], "in expanded")
+        #     # ###Αυτό πάντα σε γυρνάει στην αρχή και μετά κάνει actions.pop() σε κενό actions, γιατί προφανώς όλα τα προηγούμενα στο path είναι expanded, ηλίθιε
+        #     # # while node[0] in expanded:
+        #     # #     print(node[0]," in expanded")
+        #     # #     actions.pop()
+        #     # #     path.pop()
+        #     # #     node = (path[-1],node[1])
+        #     # successors = problem.getSuccessors(node[0])
+        #     # while helpfulFunctions.explored(successors,visited):           
+        #     #     actions.pop()
+        #     #     path.pop()
+        #     #     node = (path[-1],node[1])
+        #     #     ###Εδώ είναι το πρόβλημα, ότι ξαναπαίρνω τους successors του 'A'
+        #     #     ###λύση: χρήση dictionary node->true/false με όνομα "visited" και ανάθεση visited[s] = true στη γραμμή 134. Ο έλεγχος στην 132 θα γίνει "not visited s[0]"
+        #     #     ###λύση: χρήση set visited
+        #     #     successors = problem.getSuccessors(node[0])
+        #     actions.pop()
+        #     path.pop()
+        #     node = (path[-1],node[1])
+
 
             
     return actions
