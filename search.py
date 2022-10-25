@@ -92,10 +92,7 @@ def depthFirstSearch(problem: SearchProblem):
     #set of states already checked as not goal states
     expanded = set()
 
-    #list of actions made to reach current state ----(becomes)------> list of actions necessary to reach goal state from starting state
-    actions = []
-    
-    #list of states required to reach the goal state, in order. Useful for backtracking
+    #list of tuples. First element is a state, second is the action required to reach said state. Useful for backtracking, also for returning the actions required to reach the goalState
     path = [] 
 
     #stack of nodes. Stores the states to be expanded
@@ -108,7 +105,7 @@ def depthFirstSearch(problem: SearchProblem):
     #in case of backtracking, getSuccessors() doesn't need to be called again
     children = {}
 
-    #a tuple.first element is the state(also a tuple), and second is the required action(string) needed to reach said state
+    #a tuple.first element is the state, and second is the required action needed to reach said state
     node = (problem.getStartState(),'Stop')
 
     #for clarification purposes
@@ -116,7 +113,7 @@ def depthFirstSearch(problem: SearchProblem):
 
     expanded.add(state)
     expandable.push(state)
-    path.append(state)
+    path.append(node)
     successors = problem.getSuccessors(state)
 
     for s in successors:
@@ -126,10 +123,12 @@ def depthFirstSearch(problem: SearchProblem):
     while not frontier.isEmpty():
         node = frontier.pop()
         state = node[0]
-        path.append(state)
-        actions.append(node[1])
+        path.append(node)
 
         if (problem.isGoalState(state)):
+            actions = []
+            for p in path[1:]:
+                actions.append(p[1])
             return actions
         
 
@@ -158,8 +157,7 @@ def depthFirstSearch(problem: SearchProblem):
 
                 while last != node[0]:
                     path.pop()
-                    actions.pop()
-                    node = (path[-1],node[1])
+                    node = (path[-1])
 
         else:
             last = expandable.pop()
@@ -170,8 +168,7 @@ def depthFirstSearch(problem: SearchProblem):
                     expandable.push(last)
             while last != node[0]:
                 path.pop()
-                actions.pop()
-                node = (path[-1],node[1])
+                node = (path[-1])
             
     return actions
 
