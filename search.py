@@ -112,6 +112,8 @@ def depthFirstSearch(problem: SearchProblem):
     state = node[0]
 
     expanded.add(state)
+    #Assumes the first state is expandable. If not, makes no difference as the goalState will be found before backtracking to the start state.
+    # If, for some reason, the start state is popped from the "expandable" stack even if it only has one child, then there is no goalState
     expandable.push(state)
     path.append(node)
     successors = problem.getSuccessors(state)
@@ -177,6 +179,51 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+
+    expanded = set()
+
+    ###Δοκίμασε το frontier
+    frontier = util.Queue()
+
+    state = problem.getStartState()
+
+    #node[0] -> state, node[1]->action returned by getSuccessors(), node[2]->path to node[0] from start state (is list of actions)
+    list = []
+    node = (state,"",list)
+    node = tuple(node)
+    frontier.push(node)
+    print("initial node is ", node)
+
+    while not frontier.isEmpty():
+        node = frontier.pop()
+
+        state = node[0]
+        action = node[1]
+
+        #Addition of new action to path. Since tuples are immutable, we create a new one only having changed the third element
+        path = []
+        path.extend(node[2])
+        if (len(path)>0):
+            if (path[0] == ''):
+                path.pop(0)
+        path.append(action)
+        node = (node[0],node[1],path)
+        
+        if (problem.isGoalState(state)):
+            return node[2]
+        
+        if (state not in expanded):
+            successors = problem.getSuccessors(state)
+            expanded.add(state)
+
+            for s in successors:
+                if s not in expanded:
+                    new_state = s[0]
+                    action = s[1]
+                    neighbour = (new_state,action,node[2])
+                    frontier.push(neighbour)
+    print("ERROR")
+    return node[2]
     util.raiseNotDefined()
 
 def uniformCostSearch(problem: SearchProblem):
