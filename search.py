@@ -89,93 +89,48 @@ def depthFirstSearch(problem: SearchProblem):
     """
     "*** YOUR CODE HERE ***"
 
-    #set of states already checked as not goal states
+    #Set of states already checked as not GoalStates
     expanded = set()
 
-    #list of tuples. First element is a state, second is the action required to reach said state. Useful for backtracking, also for returning the actions required to reach the goalState
-    path = [] 
-
-    #stack of nodes. Stores the states to be expanded
+    #Stack of states to be examined
     frontier = util.Stack()
 
-    #stack of states that added more than one new successors to the frontier. In case of a dead end, we backtrack until reaching the last state that did so
-    expandable = util.Stack()
+    #So that <problem.getStartState()> doesn't need to be called again in line #110
+    startState = problem.getStartState()
+    
+    #node = (state,action,parentNode)
+    #action = action required to reach state in node[0]
+    #parentNode: current state was accessed by applying current action to parentNode's state: parentNode[0] ------(node[1])-------> node[0]
+    node = (startState,"",(tuple))
+    frontier.push(node)
 
-    #dictionary. key is a state, value is the number of unexpanded children/successors it has
-    #in case of backtracking, getSuccessors() doesn't need to be called again
-    children = {}
-
-    #a tuple.first element is the state, and second is the required action needed to reach said state
-    node = (problem.getStartState(),'Stop')
-
-    #for clarification purposes
-    state = node[0]
-
-    expanded.add(state)
-    #Assumes the first state is expandable. If not, makes no difference as the goalState will be found before backtracking to the start state.
-    # If, for some reason, the start state is popped from the "expandable" stack even if it only has one child, then there is no goalState
-    expandable.push(state)
-    path.append(node)
-    successors = problem.getSuccessors(state)
-
-    for s in successors:
-        frontier.push(s[:2])
-
-
-    while not frontier.isEmpty():
+    while not (frontier.isEmpty()):
         node = frontier.pop()
         state = node[0]
-        path.append(node)
-
         if (problem.isGoalState(state)):
             actions = []
-            for p in path[1:]:
-                actions.append(p[1])
+            while (node[0] != startState):
+                actions.append(node[1])
+                node = node[2]
+            actions.reverse()
             return actions
         
-
         if (state not in expanded):
+            action = node[1]
+            parent = node[2]
             successors = problem.getSuccessors(state)
             expanded.add(state)
-
-            #Used to save time and mainly space by preventing already expanded nodes to be added to the frontier
-            added = 0
             for s in successors:
-                if (s[0] not in expanded): #node is unsearched
-                    frontier.push(s[:2])
-                    added += 1
-            if added>1:
-                expandable.push(state)
-                #one of the successors will be expanded immediately
-                children[state] = added-1
-
-            elif added == 0:
-                last = expandable.pop()
-                #if a stage has many neighbours, we want to be able to keep coming back to it until the goalState is found or every neighbour has been processed
-                if (last in children):
-                    if (children[last]>1):
-                        children[last] = children[last] - 1
-                        expandable.push(last)
-
-                while last != node[0]:
-                    path.pop()
-                    node = (path[-1])
-
-        else:
-            last = expandable.pop()
-            #if a stage has many neighbours, we want to be able to keep coming back to it until the goalState is found or every neighbour has been processed
-            if (last in children):
-                if (children[last]>1):
-                    children[last] = children[last] - 1
-                    expandable.push(last)
-            while last != node[0]:
-                path.pop()
-                node = (path[-1])
-            
-    return actions
+                if (s[0] not in expanded):
+                    new_state = s[0]
+                    action = s[1]
+                    new_node = (new_state,action,node)
+                    frontier.push(new_node)
+    return FAILURE
 
     util.raiseNotDefined()
 
+#Completely identical, only difference is frontier is a queue
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
@@ -184,7 +139,6 @@ def breadthFirstSearch(problem: SearchProblem):
     frontier = util.Queue()
     startState = problem.getStartState()
     
-    #node = (state,action,parentNode)
     node = (startState,"",(tuple))
     frontier.push(node)
 
