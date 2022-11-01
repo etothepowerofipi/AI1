@@ -181,54 +181,43 @@ def breadthFirstSearch(problem: SearchProblem):
     "*** YOUR CODE HERE ***"
 
     expanded = set()
-
-    ###Δοκίμασε το frontier
     frontier = util.Queue()
-
-    state = problem.getStartState()
-
-    #node[0] -> state, node[1]->action returned by getSuccessors(), node[2]->path to node[0] from start state (is list of actions)
-    list = []
-    node = (state,"",list)
-    node = tuple(node)
+    startState = problem.getStartState()
+    
+    #node = (state,action,parentNode)
+    node = (startState,"",(tuple))
     frontier.push(node)
-    print("initial node is ", node)
 
-    while not frontier.isEmpty():
+    while not (frontier.isEmpty()):
         node = frontier.pop()
-
         state = node[0]
-        action = node[1]
-
-        #Addition of new action to path. Since tuples are immutable, we create a new one only having changed the third element
-        path = []
-        path.extend(node[2])
-        if (len(path)>0):
-            if (path[0] == ''):
-                path.pop(0)
-        path.append(action)
-        node = (node[0],node[1],path)
-        
         if (problem.isGoalState(state)):
-            return node[2]
+            actions = []
+            while (node[0] != startState):
+                actions.append(node[1])
+                node = node[2]
+            actions.reverse()
+            return actions
         
         if (state not in expanded):
+            action = node[1]
+            parent = node[2]
             successors = problem.getSuccessors(state)
             expanded.add(state)
-
             for s in successors:
-                if s not in expanded:
+                if (s[0] not in expanded):
                     new_state = s[0]
                     action = s[1]
-                    neighbour = (new_state,action,node[2])
-                    frontier.push(neighbour)
-    print("ERROR")
-    return node[2]
+                    new_node = (new_state,action,node)
+                    frontier.push(new_node)
+    return FAILURE
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
