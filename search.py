@@ -172,6 +172,37 @@ def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
 
+    expanded = set()
+    frontier = util.PriorityQueue()
+    startState = problem.getStartState()
+
+    #node = (state,action,pathCost,parentNode)
+    node = (startState,"",0,(tuple))
+    frontier.push(node,0)
+
+    while (not frontier.isEmpty()):
+        node = frontier.pop()
+        state = node[0]
+        if (problem.isGoalState(state)):
+            actions = []
+            while (node[0] != startState):
+                actions.append(node[1])
+                node = node[3]
+            actions.reverse()
+            return actions
+        if state not in expanded:
+            expanded.add(state)
+            successors = problem.getSuccessors(state)
+            for s in successors:
+                if (s not in expanded):
+                    new_state = s[0]
+                    action = s[1]
+                    cost = node[2] + s[2]
+                    new_node = (new_state,action,cost,node)
+                    frontier.update(new_node,cost)
+        
+    return FAILURE
+    
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
