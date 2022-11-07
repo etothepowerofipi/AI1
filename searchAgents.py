@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from operator import truediv
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -299,6 +300,13 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        pos = self.startingPosition
+        #The structure of "state" will be: tuple of 2 tuples:
+        #First tuple is current position, second tuple is a tuple of tuples, each of which is a corner that has been visited in this path.
+        #For visualization purposes, eg state = ((x,y),((1,top),(right,top)))
+        cornersReached = ()
+        startState = (pos,cornersReached)
+        return startState
         util.raiseNotDefined()
 
     def isGoalState(self, state: Any):
@@ -306,6 +314,10 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        #Returning (state[1]==4) only returns true one extra step after goal state.
+        #First two conditions mean it reached a new corner, and the third means it has already reached 3 corners, meaning this is the fourth one, hence goal state
+        return ( (state[0] in self.corners) and (state[0] not in state[1]) and (len(state[1]) == 3) )
+
         util.raiseNotDefined()
 
     def getSuccessors(self, state: Any):
@@ -319,7 +331,16 @@ class CornersProblem(search.SearchProblem):
             is the incremental cost of expanding to that successor
         """
 
+        #This does not need to be done for each action, therefore it is placed outside of the loop
         successors = []
+        x,y = state[0]
+        #To add current state, which is a corner, to the tuple of corners, it is first converted into a list, which is mutable, then the new corner is added, then turned back to a tuple
+        if (state[0] in self.corners and state[0] not in state[1]):
+            l = list(state[1])
+            l.append(state[0])
+            corners = tuple(l)
+            state = (state[0],corners)
+            
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -329,6 +350,12 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextState = ( (nextx, nexty),state[1] )
+                successors.append( ( nextState, action, 1) )
+
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -338,6 +365,7 @@ class CornersProblem(search.SearchProblem):
         Returns the cost of a particular sequence of actions.  If those actions
         include an illegal move, return 999999.  This is implemented for you.
         """
+
         if actions == None: return 999999
         x,y= self.startingPosition
         for action in actions:
