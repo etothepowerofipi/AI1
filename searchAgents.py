@@ -392,26 +392,44 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    # return 0 # Default to trivial solution
 
+    #For ease of use
     x = 0
     y = 1
     agent = state[0]
+
+    #List containing all unvisited corners
     corners = []
     for c in problem.corners:
         if c not in state[1]:
             corners.append(c)
+    
+    #Distance between current position and nearest corner
+    shortest_distance = abs(agent[x] - corners[0][x]) + abs(agent[y] - corners[0][y])
+    nearest_corner = corners[0]
+    for c in corners:
+        manhattanDistance = abs(agent[x] - c[x]) + abs(agent[y] - c[y])
+        if (manhattanDistance < shortest_distance):
+            shortest_distance = manhattanDistance
+            nearest_corner = c
 
-
-    dist = abs(agent[x] - corners[0][x]) + abs(agent[y] - corners[0][y])
-    for c in corners[1:]:
-        dist1 = abs(agent[x] - c[x]) + abs(agent[y] - c[y])
-        if dist1>dist:
-            dist = dist1
-    return dist
+    #Distance between current position and furthest corner
+    longest_distance = abs(agent[x] - corners[0][x]) + abs(agent[y] - corners[0][y])
+    furthest_corner = corners[0]
+    for c in corners:
+        manhattanDistance = abs(agent[x] - c[x]) + abs(agent[y] - c[y])
+        if (manhattanDistance > longest_distance):
+            longest_distance = manhattanDistance
+            furthest_corner = c
     
 
-    # return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    #Distance between nearest and furthest corner
+    distance_between_corners = abs(nearest_corner[x] - furthest_corner[x]) + abs(nearest_corner[y] - furthest_corner[y])
+    
+    #if there is only one unvisited corner, then it returns the manhattan distance to that corner, as distance_between_corners == 0
+    #if there are more than 2 unvisited corners, then distance_between_corners <<< true cost, as there are other corners to be visited
+    return shortest_distance + distance_between_corners
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
