@@ -402,12 +402,14 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
         if c not in state[1]:
             corners.append(c)
 
-    dist = 0
 
-    for c in corners:
+    dist = abs(agent[x] - corners[0][x]) + abs(agent[y] - corners[0][y])
+    for c in corners[1:]:
         dist1 = abs(agent[x] - c[x]) + abs(agent[y] - c[y])
-        dist += 0.5 * dist1
+        if dist1>dist:
+            dist = dist1
     return dist
+    
 
     # return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
