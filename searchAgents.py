@@ -558,7 +558,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         return mazeDistance(position,foodList[0],gameState)
 
 
-    # Returns closest food pellet to current position -> tends to make algorithm greedier -> needs fewer expansions
+    # Returns closest food pellet to current position -> tends to make algorithm greedier
     nearNode = getClosestNode(position,foodList,gameState)
     nearDist = nearNode[0]
     nearPos = nearNode[1]
@@ -569,11 +569,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     
     return nearDist + farDist
-
-
-
-
-
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -605,6 +600,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        return search.bfs(problem)
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -641,6 +637,9 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        food = self.food.asList()
+        return state in food
+
         util.raiseNotDefined()
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
