@@ -523,7 +523,137 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    x = 0
+    y = 1
+    gameState = problem.startingGameState
+
+    if not problem.heuristicInfo.__contains__("foodLocations"):
+        foodLocations = foodGrid.asList()
+        problem.heuristicInfo["foodLocations"] = foodLocations
+
+    
+    foodLocations = problem.heuristicInfo["foodLocations"]
+    if len(foodLocations) == 0:
+        return 0
+
+
+    #Finds nearest food pellet
+    minNode = foodLocations[0]
+    dist_to_nearest = mazeDistance(position,minNode,gameState)
+    for foodpos in foodLocations[1:]:
+        # dist = abs(position[x] - foodpos[x]) + abs(position[y] - foodpos[y])
+        dist = mazeDistance(position,foodpos,gameState)
+        if dist < dist_to_nearest:
+            dist_to_nearest = dist
+            minNode = foodpos
+
+    extra = 0
+    for foodpos in foodLocations:
+        if foodpos[x] != minNode[x] and foodpos[y] != minNode[y]:
+            extra += 1
+
+    return dist_to_nearest + extra
+
+
+    # minDist = abs(minNode[x] - foodLocations[0][x]) + abs(minNode[y] - foodLocations[0][y])
+    minDist = mazeDistance(minNode,foodLocations[0],gameState)
+    for foodpos in foodLocations[1:]:
+        # dist = abs(minNode[x] - foodpos[x]) + abs(minNode[y] - foodpos[y])
+        dist = mazeDistance(minNode,foodpos,gameState)
+        if (dist<minDist):
+            minDist = dist
+    
+    if len(foodLocations) == 1:
+        return minDist 
+
+    distances = []
+    totalDistance = 0
+    for foodpos in foodLocations:
+            # dist = abs(minNode[x] - foodpos[x]) + abs(minNode[y] - foodpos[y])
+        dist = mazeDistance(position,foodpos,gameState)
+        totalDistance += dist
+        distances.append(dist)
+        
+
+
+
+    # distances = []
+    # totalDistance = 0
+    # for foodpos in foodLocations:
+    #     if foodpos != minNode:
+    #         # dist = abs(minNode[x] - foodpos[x]) + abs(minNode[y] - foodpos[y])
+    #         dist = mazeDistance(minNode,foodpos,gameState)
+    #         totalDistance += dist
+    #         distances.append(dist)
+    
+    # Returns mean value
+    distances.sort()
+
+
+    middleElement = (len(distances) - 1) // 2
+
+    avgDistance = totalDistance / (len(distances))
+    meanDistance = distances[middleElement]
+
+
+        
+    return dist_to_nearest + totalDistance/(len(distances))
+
+    # # minDistance = mazeDistance(position,foodLocations[0],problem.startingGameState)
+    # minDistance = abs(position[x] - foodLocations[0][x]) + abs(position[y] - foodLocations[0][y])
+    # maxDistance = minDistance
+    # minNode = foodLocations[0]
+    # maxNode = minNode
+
+    # for foodpos in foodLocations[1:]:
+    #     # dist = mazeDistance(position,foodpos,problem.startingGameState)
+    #     dist = abs(position[x] - foodpos[x]) + abs(position[y] - foodpos[y])
+    #     if dist < minDistance:
+    #         minDistance = dist
+    #         minNode = foodpos
+    #     elif dist > maxDistance:
+    #         maxDistance = dist
+    #         maxNode = foodpos
+    
+    # dist0 = mazeDistance(position,minNode,problem.startingGameState)
+    # dist1 = mazeDistance(minNode,maxNode,problem.startingGameState)
+    # return dist0 + dist1
+
+
+    # maxDistance0 = 0
+    # maxDistance1 = 0
+    # closer_pos = ()
+    # furthest_pos = ()
+    # for foodpos in foodLocations:
+    #     dist = mazeDistance(position,foodpos,problem.startingGameState)
+    #     if dist>maxDistance0:
+    #         maxDistance1 = maxDistance0
+    #         closer_pos = furthest_pos
+    #         maxDistance0 = dist
+    #         furthest_pos = foodpos
+    #     elif dist>maxDistance1:
+    #         maxDistance1 = dist
+    #         closer_pos = foodpos
+    
+    # distance_between_fruits = maxDistance1 + maxDistance0
+    # distance_to_fruit = mazeDistance(position,closer_pos,problem.startingGameState)
+    # return distance_between_fruits + distance_to_fruit
+
+
+
+
+    # total_cost = 0
+    # prev_pos = position
+    # # minDistance = mazeDistance(position,foodLocations[0],problem.startingGameState)
+    # # minpos = foodLocations[0]
+    # # minDistance = abs(position[x] - minpos[x]) + abs(position[y] - minpos[y])
+    # for food in foodLocations:
+    #     total_cost +=  mazeDistance(prev_pos,food,problem.startingGameState)
+    #     prev_pos = food
+    #     # dist = abs(position[x] - food[x]) + abs(position[y] - food[y])
+    # return total_cost/len(foodLocations)
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
