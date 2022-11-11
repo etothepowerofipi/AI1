@@ -95,7 +95,7 @@ def depthFirstSearch(problem: SearchProblem):
     #Stack of states to be examined
     frontier = util.Stack()
 
-    #So that <problem.getStartState()> doesn't need to be called again in line #110
+    #So that <problem.getStartState()> doesn't need to be called again in line #113
     startState = problem.getStartState()
     
     #node = (state,action,parentNode)
@@ -109,6 +109,7 @@ def depthFirstSearch(problem: SearchProblem):
         state = node[0]
         if (problem.isGoalState(state)):
             actions = []
+            #The first node contains no useful information as to the path.
             while (node[0] != startState):
                 actions.append(node[1])
                 node = node[2]

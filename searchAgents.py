@@ -301,7 +301,7 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         pos = self.startingPosition
-        #The structure of "state" will be: tuple of 2 tuples:
+        #The structure of "state" will be a tuple of 2 tuples:
         #First tuple is current position, second tuple is a tuple of tuples, each of which is a corner that has been visited in this path.
         #For visualization purposes, eg state = ((x,y),((1,top),(right,top)))
         cornersReached = ()
@@ -374,6 +374,8 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def manhattanSimple(a,b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def cornersHeuristic(state: Any, problem: CornersProblem):
     """
@@ -399,36 +401,31 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     agent = state[0]
 
     #List containing all unvisited corners
-    corners = []
-    for c in problem.corners:
+    unvCorners = []
+    for c in corners:
         if c not in state[1]:
-            corners.append(c)
+            unvCorners.append(c)
     
     #Distance between current position and nearest corner
-    shortest_distance = abs(agent[x] - corners[0][x]) + abs(agent[y] - corners[0][y])
-    nearest_corner = corners[0]
-    for c in corners:
-        manhattanDistance = abs(agent[x] - c[x]) + abs(agent[y] - c[y])
+    shortest_distance = manhattanSimple(agent,unvCorners[0])
+    nearest_corner = unvCorners[0]
+    for c in unvCorners:
+        manhattanDistance = manhattanSimple(agent,c)
         if (manhattanDistance < shortest_distance):
             shortest_distance = manhattanDistance
             nearest_corner = c
 
-    #Distance between current position and furthest corner
-    longest_distance = abs(agent[x] - corners[0][x]) + abs(agent[y] - corners[0][y])
-    furthest_corner = corners[0]
-    for c in corners:
-        manhattanDistance = abs(agent[x] - c[x]) + abs(agent[y] - c[y])
-        if (manhattanDistance > longest_distance):
-            longest_distance = manhattanDistance
+    #Distance between nearest unvCorner and its furthest unvCorner
+    cornerDistance = manhattanSimple(nearest_corner,unvCorners[0])
+    furthest_corner = unvCorners[0]
+    for c in unvCorners[1:]:
+        manhattanDistance = manhattanSimple(nearest_corner,c)
+        if (manhattanDistance > cornerDistance):
+            cornerDistance = manhattanDistance
             furthest_corner = c
     
+    return shortest_distance + cornerDistance
 
-    #Distance between nearest and furthest corner
-    distance_between_corners = abs(nearest_corner[x] - furthest_corner[x]) + abs(nearest_corner[y] - furthest_corner[y])
-    
-    #if there is only one unvisited corner, then it returns the manhattan distance to that corner, as distance_between_corners == 0
-    #if there are more than 2 unvisited corners, then distance_between_corners <<< true cost, as there are other corners to be visited
-    return shortest_distance + distance_between_corners
 
 
 class AStarCornersAgent(SearchAgent):
@@ -497,7 +494,7 @@ class AStarFoodSearchAgent(SearchAgent):
 def getClosestNode(node,nodeList,gameState):
     closest = nodeList[0]
     min = mazeDistance(node,closest,gameState)
-    for n in nodeList:
+    for n in nodeList[1:]:
         dist = mazeDistance(node,n,gameState)
         if (dist < min):
             min = dist
@@ -507,7 +504,7 @@ def getClosestNode(node,nodeList,gameState):
 def getFurthestNode(node,nodeList,gameState):
     furthest = nodeList[0]
     max = mazeDistance(node,furthest,gameState)
-    for n in nodeList:
+    for n in nodeList[1:]:
         dist = mazeDistance(node,n,gameState)
         if (dist > max):
             max = dist
@@ -554,8 +551,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     if len(foodList) == 0:
         return 0
-    if len(foodList) == 1:
-        return mazeDistance(position,foodList[0],gameState)
 
 
     # Returns closest food pellet to current position -> tends to make algorithm greedier
