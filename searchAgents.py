@@ -293,6 +293,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.startState = startingGameState
 
     def getStartState(self):
         """
@@ -407,21 +408,21 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
             unvCorners.append(c)
     
     #Distance between current position and nearest corner
-    shortest_distance = manhattanSimple(agent,unvCorners[0])
+    shortest_distance = mazeDistance(agent,unvCorners[0],problem.startState)
     nearest_corner = unvCorners[0]
     for c in unvCorners:
-        manhattanDistance = manhattanSimple(agent,c)
-        if (manhattanDistance < shortest_distance):
-            shortest_distance = manhattanDistance
+        dist = mazeDistance(agent,c,problem.startState)
+        if (dist < shortest_distance):
+            shortest_distance = dist
             nearest_corner = c
 
     #Distance between nearest unvCorner and its furthest unvCorner
-    cornerDistance = manhattanSimple(nearest_corner,unvCorners[0])
+    cornerDistance = mazeDistance(nearest_corner,unvCorners[0],problem.startState)
     furthest_corner = unvCorners[0]
     for c in unvCorners[1:]:
-        manhattanDistance = manhattanSimple(nearest_corner,c)
-        if (manhattanDistance > cornerDistance):
-            cornerDistance = manhattanDistance
+        dist = mazeDistance(nearest_corner,c,problem.startState)
+        if (dist > cornerDistance):
+            cornerDistance = dist
             furthest_corner = c
     
     return shortest_distance + cornerDistance
@@ -551,7 +552,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     if len(foodList) == 0:
         return 0
-
+    
 
     # Returns closest food pellet to current position -> tends to make algorithm greedier
     nearNode = getClosestNode(position,foodList,gameState)
@@ -595,6 +596,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        #Since cost is not an issue, bfs is the only way to assuredly find the path to the closest dot
         return search.bfs(problem)
         util.raiseNotDefined()
 
@@ -633,6 +635,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
         "*** YOUR CODE HERE ***"
         food = self.food.asList()
+        #If current state is one of those that have food, it's a goal state
         return state in food
 
         util.raiseNotDefined()
